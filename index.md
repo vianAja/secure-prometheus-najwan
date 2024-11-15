@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/70a99a78-696a-46a3-8364-4b847d314ee5)---
+---
 title: Secure Prometheus
 feature_text: |
   ## Secure Connection Prometheus Monitoring Web Server and Container
