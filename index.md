@@ -1,4 +1,4 @@
----
+![image](https://github.com/user-attachments/assets/70a99a78-696a-46a3-8364-4b847d314ee5)---
 title: Secure Prometheus
 feature_text: |
   ## Secure Connection Prometheus Monitoring Web Server and Container
@@ -67,7 +67,8 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
 
 ## Implementasi
 1. Konfigurasi SSH ke All Node
-   - Buat directory untuk menyimpan CA di dalam directory “/etc/ssl/” agar lebih rapi serta mudah di identifikasi.
+2. Konfigurasi SSL Certificate untuk layanan
+   - Buat directory untuk menyimpan CA di dalam directory **_“/etc/ssl/”_** agar lebih rapi serta mudah di identifikasi.
      * Node Monitoring
        ```
        # Untuk Prometheus
@@ -184,9 +185,261 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
          -in /etc/ssl/nginx/nginx.csr\
          -out /etc/ssl/nginx/nginx.crt
        ```
-       
-3. Konfigurasi SSL Certificate untuk layanan
-4. 
+3. Install Node Exporter dan Konfigurasi SSL
+   - Install Package Node Exporter, lalu pindahkan ke directory **_"/etc"_**.
+     ```
+     wget https://github.com/prometheus/node_exporter/releases/download/ v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+     sudo cp node_exporter-1.8.2.linux-amd64 /etc/node_exporter/
+     ```
+     
+   - Buat file **_“config.yml”_** di directory **_“/etc/node_exporter”_** yang nantinya digunakan untuk koneksi ssl.
+     ```
+     tls_server_config:
+       cert_file: /etc/ssl/node_exporter/node_exporter.crt
+       key_file: /etc/ssl/node_exporter/node_exporter.key
+     ```
+     
+   - Buat service, agar dapat berjalan di background.
+     ```
+     sudo /etc/systemd/system/node-exporter.service
+     [Unit]
+     Description=Node Exporter
+
+     [Service]
+     User=root
+     ExecStart=/etc/node_exporter/node_exporter \
+         --web.config.file="/etc/node_exporter/config.yml"
+    
+     [Install]
+     WantedBy=default.target
+     ```
+     
+   - Restart Daemon dan jalankan service Node Exporternya.
+     ```
+     sudo systemctl daemon-reload
+     sudo systemctl start node-exporter.service
+     sudo systemctl enable node-exporter.service
+     sudo systemctl status node-exporter.service
+     ```
+     
+4. Install dan Konfigurasi Apache dengan SSL
+   - Install Package Apache2, dan Download Source Code untuk aplikasi **_[2048]_**(https://github.com/gabrielecirulli/2048)
+     ```
+     sudo apt install apache2 -y
+
+     git clone https://github.com/gabrielecirulli/2048
+     sudo cp 2048 /var/www/html/
+     ```
+     
+   - Konfigurasi untuk mods SSL di Apache.
+     ```
+     sudo nano /etc/apache2/mods-available/ssl.conf
+
+     ---
+     SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1 +TLSv1.2 +TLSv1.3
+     ---
+
+     sudo a2enmod ssl
+     ```
+     
+   - Konfigurasi untuk web nya agar menampikan aplikasi yang sesuai.
+     ```
+     sudo nano /etc/apache2/sites-available/default-ssl.conf
+
+     <VirtualHost_default_:443>
+         ServerName 10.18.18.20
+         DocumentRoot /var/www/html/2048
+
+         SSLEngine on
+         SSLCertificateFile      /etc/ssl/apache/apache.crt
+         SSLCertificateKeyFile   /etc/ssl/apache/apache.key
+         SSLCACertificateFile    /etc/ssl/apache/client/client.crt
+
+         <Location "/server-status">
+             SetHandler server-status
+         </Location>
+     ---
+     sudo a2ensite default-ssl.conf
+     ```
+     
+   - Restart layanan Apache2.
+     ```
+     sudo systemctl restart apache2.service
+     sudo systemctl status apache2.service
+     ```
+     
+5. Install dan Konfigurasi Nginx dengan SSL
+   - Install Package Apache2, dan Download Source Code untuk aplikasi **_[Tic Tac Toe]_**(https://github.com/Aklilu-Mandefro/javascript-Tic-Tac-Toe-game-app)
+     ```
+     sudo apt install nginx -y
+
+     git clone https://github.com/Aklilu-Mandefro/javascript-Tic-Tac-Toe-game-app)
+     sudo cp javascript-Tic-Tac-Toe-game-app /var/www/html/
+     ```
+     
+   - Konfigurasi untuk web nya agar menampikan aplikasi yang sesuai.
+     ```
+     sudo nano /etc/nginx/sites-available/default
+
+     server {
+           listen 443 ssl default_server;
+           listen [::]: 443 ssl default_server;
+     
+           root /var/www/html/javascript-Tic-Tac-Toe-game-app/;
+           index index.html;
+     
+           ssl_certificate      /etc/ssl/nginx/nginx.crt;
+           ssl_certificate_key  /etc/ssl/nginx/nginx.key;
+           ssl_protocols        TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+           ssl_ciphers          HIGH:!aNULL:!MD5;
+
+           location / {
+                 try_files $uri $uri/ =404;
+           }
+     
+           location = /server-status {
+                 stub_status on;
+           }
+     }
+     ```
+     
+   - Restart layanan Nginx.
+     ```
+     sudo systemctl restart nginx.service
+     sudo systemctl status nginx.service
+     ```
+     
+6. Install Apache Exporter dengan SSL
+   - Download Package Apache Exporter, lalu pindahkan ke directory **_"/etc_**.
+     ```
+     wget https://github.com/Lusitaniae/apache_exporter/releases/download/v1.0.3/apache_exporter-1.0.3.linux-amd64.tar.gz
+
+     tar xvzf apache_exporter-1.0.3.linux-amd64.tar.gz
+     sudo cp apache_exporter-1.0.3.linux-amd64 /etc/apache_exporter
+     ```
+     
+   - Buat file **_“config.yml”_** di directory **_“/etc/apache_exporter”_** yang nantinya digunakan untuk koneksi ssl.
+     ```
+     tls_server_config:
+       cert_file: /etc/ssl/apache_exporter/apache_exporter.crt
+       key_file: /etc/ssl/apache_exporter/apache_exporter.key
+     ```
+     
+   - Buat service, agar dapat berjalan di background.
+     ```
+     sudo /etc/systemd/system/apache-exporter.service
+     [Unit]
+     Description=Apache Exporter
+
+     [Service]
+     User=root
+     ExecStart=/etc/apache_exporter/apache_exporter \
+         --scrape_url="https://10.18.18.20:443/server-status?auto" \
+         --web.config.file="/etc/apache_exporter/config.yml" \
+         --insecure
+    
+     [Install]
+     WantedBy=default.target
+     ```
+   - Restart Daemon dan jalankan service Node Exporternya.
+     ```
+     sudo systemctl daemon-reload
+     sudo systemctl start node-exporter.service
+     sudo systemctl enable node-exporter.service
+     sudo systemctl status node-exporter.service
+     ```
+     
+7. Install Nginx Exporter dengan SSL
+   - Install Package Nginx Exporter, lalu pindahkan ke directory **_"/etc"_**.
+     ```
+     wget https://github.com/nginxinc/nginx-prometheus-exporter/releases/download/v0.11.0/nginx-prometheus-exporter_0.11.0_linux_amd64.tar.gz
+     tar -xvzf nginx-prometheus-exporter_0.11.0_linux_amd64.tar.gz
+     sudo cp nginx-prometheus-exporter_0.11.0_linux_amd64 /etc/nginx_exporter
+     ```
+     
+   - Buat file **_“config.yml”_** di directory **_“/etc/nginx_exporter”_** yang nantinya digunakan untuk koneksi ssl.
+     ```
+     tls_server_config:
+       cert_file: /etc/ssl/nginx_exporter/nginx_exporter.crt
+       key_file: /etc/ssl/nginx_exporter/nginx_exporter.key
+     ```
+     
+   - Buat service, agar dapat berjalan di background.
+     ```
+     sudo /etc/systemd/system/nginx-exporter.service
+     
+     [Unit]
+     Description=Nginx Exporter
+     Wants=network-online.target
+     After=network-online.target
+     
+     [Service]
+     User=root
+
+     ExecStart=/etc/nginx_exporter/nginx-prometheus-exporter \
+         -nginx.scrape-uri=https://10.18.18.20:443/server-status
+         -nginx.ssl-ca-cert="/etc/ssl/nginx/nginx.crt" \
+         -web.secured-metrics=true \
+         -web.ssl-server-cert="/etc/ssl/nginx/nginx.crt" \
+         -web.ssl-server-key="/etc/ssl/nginx/nginx.key"
+    
+     [Install]
+     WantedBy=default.target
+     ```
+     
+   - Restart Daemon dan jalankan service Nginx Exporternya.
+     ```
+     sudo systemctl daemon-reload
+     sudo systemctl start nginx-exporter.service
+     sudo systemctl enable nginx-exporter.service
+     sudo systemctl status nginx-exporter.service
+     ```
+
+8. Install Docker
+  - Menambahkan repository dari Docker.
+    ```
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl -y
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    ```
+  - Install Docker.
+    ```
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+    ```
+  - Mengatur agar user **_“student”_** atau user biasa (Bukan Root) dapat menggunakan perintah docker
+    ```
+    sudo usermod -aG docker $USER
+    sudo chmod 666 /var/run/docker.sock
+    docker version
+    ```
+9. Install CAdvisor untuk Monitoring Container Docker
+   ```
+   docker run -d \
+       --volume=/:/rootfs:ro \
+       --volume=/var/run:/var/run:ro \
+       --volume=/sys:/sys:ro \
+       --volume=/var/lib/docker/:/var/lib/docker:ro \
+       --volume=/dev/disk/:/dev/disk:ro \
+       --publish=8080:8080 \
+       --detach=true \
+       --name=cadvisor\
+       gcr.io/cadvisor/cadvisor:latest
+
+   docker ps -a
+   ```
+10. Install dan Konfigurasi Prometheus dengan SSL
+   - Download Package Prometheus.
+   - Lalu Edit di file **_/etc/prometheus/config.yml_** untuk menambahkan alerting ke AlertManager, Rules untuk Alerting, serta Targets yang akan di Pantau.
+   - Buat Service agar dapat berjalan di Background.
+11. 
+
+
+
+
 
 Here are a few examples of Alembic out in the wild being used in a variety of ways:
 
