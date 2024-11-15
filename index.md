@@ -11,19 +11,19 @@ Di zaman modern sekarang yang serba otomatis serta kebutuhan akan monitoring ata
 Dan dibutuhkan juga tools untuk visualisasi agar memudahkan dalam melakukan monitoring suatu system, aplikasi maupun server, Grafana disini berperan sebagai tools visualisasi yang sangat popular, karena kemampuannya dalam menangani visualisasi dengan banyak tools lain, sehingga lebih fleksible.
 Serta dibutuhkan juga Alerting agar dapat memberikan peringatan dini terkait semisal adanya ganguan pada system yang menyebabkan system down, atau semisal ada terkait ancaman Cyber crime seprti DoS atau DDoS. Alert Manager Prometheus yang mengambil peran ini, yang nantinya akan mengirimkan peringatan apabila terjadi hal – hal tadi, sehingga meminimalisir terjadinya kerusakan pada system atau aplikasi kita. Alert Manager sendiri dapat di integrasikan dengan beberapa tools untuk notifikasi lain seperti Discord, Email atau WebHook Endpoint. Sehingga lebih fleksible dalam penggunaan alerting nya.
 ## Tools yang Digunakan.
-●	Prometheus – 2.48.1
-●	Grafana – 11.2.2
-●	Alert Manager – 0.26.0
-●	Node Exporter – 1.8.2
-●	Nginx – 1.10.0
-●	Nginx Exporter – 0.11.0
-●	Apache2 – 2.4.52
-●	Apache Exporter – 1.0.3
-●	Docker – 27.3.1
-●	cAdvisor 
-●	Python – 3.10.12
-●	Discord
-●	Email
+- Prometheus – 2.48.1
+- Grafana – 11.2.2
+- Alert Manager – 0.26.0
+- Node Exporter – 1.8.2
+- Nginx – 1.10.0
+- Nginx Exporter – 0.11.0
+- Apache2 – 2.4.52
+- Apache Exporter – 1.0.3
+- Docker – 27.3.1
+- cAdvisor
+- Python – 3.10.12
+- Discord
+- Email
 
 ## Topologi
 ![Branching](./assets/images/topologi.png)
@@ -64,29 +64,26 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
 ## Implementasi
 1. Konfigurasi SSH ke All Node
    - Buat directory untuk menyimpan CA di dalam directory “/etc/ssl/” agar lebih rapi serta mudah di identifikasi.
-     1. Node Monitoring
+     * Node Monitoring
         ```
         sudo mkdir -p /etc/ssl/prometheus
         sudo mkdir -p /etc/ssl/prometheus/cert/
         sudo mkdir -p /etc/ssl/prometheus/cert/<IP atau Domain dari Prometheus>/
-        ```
-        ```
+        
         sudo mkdir -p /etc/ssl/node_exporter/
         sudo mkdir -p /etc/ssl/apache_exporter/
         sudo mkdir -p /etc/ssl/nginx_exporter/
         ```
-     2. Node Client 1
+     * Node Client 1
         ```
         sudo mkdir -p /etc/ssl/node_exporter/
-        ```
-        ```
+
         sudo mkdir -p /etc/ssl/apache/
         sudo mkdir -p /etc/ssl/apache/client/
-        ```
-        ```
+
         sudo mkdir -p /etc/ssl/nginx
         ```
-     4. Node Client 2
+     * Node Client 2
    - Buat file IP SAN untuk setiap Server / Node.
      ```
      sudo nano /etc/ssl/IP_SANS.txt
@@ -94,7 +91,8 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
      subjectAltName=IP:<IP dari setiap Server / Node>
      ```
    - Buat Certificate untuk beberapa layanan berikut :
-     1. 
+     * pas
+     * 
 3. Konfigurasi SSL Certificate untuk layanan
 4. 
 
