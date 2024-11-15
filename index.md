@@ -65,25 +65,34 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
 1. Konfigurasi SSH ke All Node
    - Buat directory untuk menyimpan CA di dalam directory “/etc/ssl/” agar lebih rapi serta mudah di identifikasi.
      * Node Monitoring
-        ```
-        sudo mkdir -p /etc/ssl/prometheus
-        sudo mkdir -p /etc/ssl/prometheus/cert/
-        sudo mkdir -p /etc/ssl/prometheus/cert/<IP atau Domain dari Prometheus>/
-        
-        sudo mkdir -p /etc/ssl/node_exporter/
-        sudo mkdir -p /etc/ssl/apache_exporter/
-        sudo mkdir -p /etc/ssl/nginx_exporter/
-        ```
+       ```
+       # Untuk Prometheus
+       sudo mkdir -p /etc/ssl/prometheus
+       sudo mkdir -p /etc/ssl/prometheus/cert/
+       sudo mkdir -p /etc/ssl/prometheus/cert/<IP atau Domain dari Prometheus>/
+
+       # Untuk Targets Prometheus
+       sudo mkdir -p /etc/ssl/node_exporter/
+       sudo mkdir -p /etc/ssl/apache_exporter/
+       sudo mkdir -p /etc/ssl/nginx_exporter/
+       ```
      * Node Client 1
-        ```
-        sudo mkdir -p /etc/ssl/node_exporter/
+       ```
+       # Untuk Node Exporter
+       sudo mkdir -p /etc/ssl/node_exporter/
 
-        sudo mkdir -p /etc/ssl/apache/
-        sudo mkdir -p /etc/ssl/apache/client/
+       # Untuk Apache
+       sudo mkdir -p /etc/ssl/apache/
+       sudo mkdir -p /etc/ssl/apache/client/
 
-        sudo mkdir -p /etc/ssl/nginx
-        ```
+       sudo mkdir -p /etc/ssl/nginx
+       ```
      * Node Client 2
+       ```
+       # Untuk Node Exporter
+       sudo mkdir -p /etc/ssl/node_exporter/
+       ```
+       
    - Buat file IP SAN untuk setiap Server / Node.
      ```
      sudo nano /etc/ssl/IP_SANS.txt
@@ -91,8 +100,15 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
      subjectAltName=IP:<IP dari setiap Server / Node>
      ```
    - Buat Certificate untuk beberapa layanan berikut :
-     * pas
-     * 
+     * Prometheus
+       ```
+       sudo openssl genrsa -out /etc/ssl/apache/apache.key 2048
+       ```
+     * Node Exporter
+     * Web Service Apache2 dan Apache Exporter
+     * Client Web Server Apache2
+     * Web Service Nginx dan Nginx Exporter
+       
 3. Konfigurasi SSL Certificate untuk layanan
 4. 
 
