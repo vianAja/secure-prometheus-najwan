@@ -185,6 +185,7 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
          -in /etc/ssl/nginx/nginx.csr\
          -out /etc/ssl/nginx/nginx.crt
        ```
+       
 3. Install Node Exporter dan Konfigurasi SSL
    - Install Package Node Exporter, lalu pindahkan ke directory **_"/etc"_**.
      ```
