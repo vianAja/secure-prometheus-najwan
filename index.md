@@ -223,7 +223,7 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
      ```
      
 4. Install dan Konfigurasi Apache dengan SSL
-   - Install Package Apache2, dan Download Source Code untuk aplikasi **_[2048]_**(https://github.com/gabrielecirulli/2048)
+   - Install Package Apache2, dan Download Source Code untuk aplikasi **_[2048](https://github.com/gabrielecirulli/2048)_**.
      ```
      sudo apt install apache2 -y
 
@@ -235,9 +235,7 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
      ```
      sudo nano /etc/apache2/mods-available/ssl.conf
 
-     ---
      SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1 +TLSv1.2 +TLSv1.3
-     ---
 
      sudo a2enmod ssl
      ```
@@ -269,7 +267,7 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
      ```
      
 5. Install dan Konfigurasi Nginx dengan SSL
-   - Install Package Apache2, dan Download Source Code untuk aplikasi **_[Tic Tac Toe]_**(https://github.com/Aklilu-Mandefro/javascript-Tic-Tac-Toe-game-app)
+   - Install Package Apache2, dan Download Source Code untuk aplikasi **_[Tic Tac Toe](https://github.com/Aklilu-Mandefro/javascript-Tic-Tac-Toe-game-app)_**.
      ```
      sudo apt install nginx -y
 
