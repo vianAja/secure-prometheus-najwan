@@ -1,5 +1,5 @@
 ---
-title: Latar Belakang
+title: Secure Prometheus
 feature_text: |
   ## Secure Connection Prometheus Monitoring Web Server and Container
   By Najwan Octavian Gerrard
@@ -7,9 +7,13 @@ feature_image: "https://picsum.photos/1300/400?image=989"
 excerpt: 
 ---
 
+## Latar Belakang
 Di zaman modern sekarang yang serba otomatis serta kebutuhan akan monitoring atau pengecekan secara berkala, membuat kebutuhan akan tools automation monitoring yang canggih tanpa adanya campur tangan manusia untuk pengambilan data yang di monitoring tersebut, seperti penggunaan CPU, memory, disk atau traffic jaringan, menjadi semakin meningkat. Prometheus adalah salah satu solusi akan hal tersebut, yang menyediakan cara monitoring real time tanpa perlu adanya campur tangan manusia saat mengambil data yang harus di monitoring.
+
 Dan dibutuhkan juga tools untuk visualisasi agar memudahkan dalam melakukan monitoring suatu system, aplikasi maupun server, Grafana disini berperan sebagai tools visualisasi yang sangat popular, karena kemampuannya dalam menangani visualisasi dengan banyak tools lain, sehingga lebih fleksible.
+
 Serta dibutuhkan juga Alerting agar dapat memberikan peringatan dini terkait semisal adanya ganguan pada system yang menyebabkan system down, atau semisal ada terkait ancaman Cyber crime seprti DoS atau DDoS. Alert Manager Prometheus yang mengambil peran ini, yang nantinya akan mengirimkan peringatan apabila terjadi hal – hal tadi, sehingga meminimalisir terjadinya kerusakan pada system atau aplikasi kita. Alert Manager sendiri dapat di integrasikan dengan beberapa tools untuk notifikasi lain seperti Discord, Email atau WebHook Endpoint. Sehingga lebih fleksible dalam penggunaan alerting nya.
+
 ## Tools yang Digunakan.
 - Prometheus – 2.48.1
 - Grafana – 11.2.2
@@ -99,15 +103,87 @@ SSL merupakan Protocol keamanan yang digunakan untuk mengenkrip si data seperti 
 
      subjectAltName=IP:<IP dari setiap Server / Node>
      ```
+     
    - Buat Certificate untuk beberapa layanan berikut :
      * Prometheus
        ```
-       sudo openssl genrsa -out /etc/ssl/apache/apache.key 2048
+       sudo openssl genrsa -out /etc/ssl/prometheus/cert/10.18.18.10:9090/10.18.18.10:9090.key 2048
+       
+       sudo openssl req sha512-new \
+         -subj "/C=IN/ST=jateng/L=kendal/0=Prometheus Najwan/OU=Prometheus Najwan/CN=Prometheus Najwan>" \
+         -key /etc/ssl/prometheus/cert/10.18.18.10:9090/10.18.18.10:9090.key \
+         -out /etc/ssl/prometheus/cert/10.18.18.10:9090/10.18.18.10:9090.csr
+
+       sudo openssl x509 -req-sha512 days 3650 \
+         -key /etc/ssl/prometheus/cert/10.18.18.10:9090/10.18.18.10:9090.key \
+         -extfile /etc/ssl/IP_SANS.txt \
+         -in /etc/ssl/prometheus/cert/10.18.18.10:9090/10.18.18.10:9090.csr\
+         -out /etc/ssl/prometheus/cert/10.18.18.10:9090/10.18.18.10:9090.crt
        ```
+       
      * Node Exporter
+       ```
+       sudo openssl genrsa -out /etc/ssl/node_exporter/node_exporter.key 2048
+       
+       sudo openssl req sha512-new \
+         -subj "/C=IN/ST=jateng/L=kendal/0=Node Exporter Najwan/OU=Node Exporter Najwan/CN=Node Exporter Najwan>" \
+         -key /etc/ssl/node_exporter/node_exporter.key \
+         -out /etc/ssl/node_exporter/node_exporter.csr
+
+       sudo openssl x509 -req-sha512 days 3650 \
+         -key /etc/ssl/node_exporter/node_exporte.key \
+         -extfile /etc/ssl/IP_SANS.txt \
+         -in /etc/ssl/node_exporter/node_exporte.csr\
+         -out /etc/ssl/node_exporter/node_exporte.crt
+       ```
+       
      * Web Service Apache2 dan Apache Exporter
+       ```
+       sudo openssl genrsa -out /etc/ssl/apache/apache.key 2048
+       
+       sudo openssl req sha512-new \
+         -subj "/C=IN/ST=jateng/L=kendal/0=Apache Najwan/OU=Apache Najwan/CN=Apache Najwan>" \
+         -key /etc/ssl/apache/apache.key \
+         -out /etc/ssl/apache/apache.csr
+
+       sudo openssl x509 -req-sha512 days 3650 \
+         -key /etc/ssl/apache/apache.key \
+         -extfile /etc/ssl/IP_SANS.txt \
+         -in /etc/ssl/apache/apache.csr\
+         -out /etc/ssl/apache/apache.crt
+       ```
+       
      * Client Web Server Apache2
+       ```
+       sudo openssl genrsa -out /etc/ssl/apache/client/client.key 2048
+       
+       sudo openssl req sha512-new \
+         -subj "/C=IN/ST=jateng/L=kendal/0=Apache Najwan/OU=Apache Najwan/CN=Apache Najwan>" \
+         -key /etc/ssl/apache/client/client.key \
+         -out /etc/ssl/apache/client/client.csr
+
+       sudo openssl x509 -req-sha512 days 3650 \
+         -key /etc/ssl/apache/client/client.key \
+         -extfile /etc/ssl/IP_SANS.txt \
+         -in /etc/ssl/apache/client/client.csr\
+         -out /etc/ssl/apache/client/client.crt
+       ```
+       
      * Web Service Nginx dan Nginx Exporter
+       ```
+       sudo openssl genrsa -out /etc/ssl/nginx/nginx.key 2048
+       
+       sudo openssl req sha512-new \
+         -subj "/C=IN/ST=jateng/L=kendal/0=Prometheus Najwan/OU=Prometheus Najwan/CN=Prometheus Najwan>" \
+         -key /etc/ssl/nginx/nginx.key \
+         -out /etc/ssl/nginx/nginx.csr
+
+       sudo openssl x509 -req-sha512 days 3650 \
+         -key /etc/ssl/nginx/nginx.key \
+         -extfile /etc/ssl/IP_SANS.txt \
+         -in /etc/ssl/nginx/nginx.csr\
+         -out /etc/ssl/nginx/nginx.crt
+       ```
        
 3. Konfigurasi SSL Certificate untuk layanan
 4. 
